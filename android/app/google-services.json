@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "983432048197",
+    "project_id": "fog-map-c5687",
+    "storage_bucket": "fog-map-c5687.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:983432048197:android:afbb8cf68de76b5acd3d2c",
+        "android_client_info": {
+          "package_name": "com.example.fog_map"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "983432048197-27u6ot85gv9i7tfn99ph59m8vdrpboin.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBobwOUWsPMxCYszNhOAT0bdjw3vVL0y_4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "983432048197-27u6ot85gv9i7tfn99ph59m8vdrpboin.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
