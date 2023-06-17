@@ -9,7 +9,7 @@ import 'package:fog_map/reuseable/session_manager.dart';
 import 'package:fog_map/reuseable/utils.dart';
 import 'package:fog_map/sigin/index.dart';
 import 'package:fog_map/sigin/sign_up_view.dart';
-import 'package:geolocator/geolocator.dart' as geolocator;
+// import 'package:geolocator/geolocator.dart' as geolocator;
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -24,7 +24,7 @@ class MapController extends GetxController {
   // late DatabaseReference _locationRef;
   final Map<String, Marker> _markers = {};
   final markerList = <Marker>[].obs;
-  RxList markersInRange = [].obs;
+  // RxList markersInRange = [].obs;
   Location location = Location();
   var _currentLocation = LatLng(0.0, 0.0).obs;
   final _locationRef = FirebaseDatabase.instance.ref().child('locations');
@@ -38,8 +38,8 @@ class MapController extends GetxController {
   void onInit() {
     super.onInit();
     initLocation();
-    calculateDistance();
-    print('length is : ' + markersInRange.length.toString());
+    // calculateDistance();
+    // print('length is : ' + markersInRange.length.toString());
 
     location.onLocationChanged.listen((LocationData currentLocation) {
       _currentLocation.value = LatLng(currentLocation.latitude!.toDouble(),
@@ -122,41 +122,41 @@ class MapController extends GetxController {
     markerList.add(mar);
 
   }
-  calculateDistance() async {
-    print('inside');
-    try{
-      print('inside try');
-      geolocator.Position currentPosition =
-          await geolocator.Geolocator.getCurrentPosition(
-        desiredAccuracy: geolocator.LocationAccuracy.high,
-      );
-      double currentLat = currentPosition.latitude;
-      double currentLng = currentPosition.longitude;
-
-      markersInRange.add(
-        Marker(markerId: MarkerId('current lang'), position: currentLocation),
-      );
-      for (var marker in markerList) {
-        double markerLat = marker.position.latitude;
-        double markerLng = marker.position.longitude;
-
-        double distanceInMeters = await geolocator.Geolocator.distanceBetween(
-          currentLat,
-          currentLng,
-          markerLat,
-          markerLng,
-        );
-
-        print('distanceInMeters : ' + distanceInMeters.toString());
-
-        if (distanceInMeters <= 1000) {
-          markersInRange.add(marker);
-        }
-      }
-    }catch(e) {
-      print('Exception is : ' + e.toString());
-    }
-  }
+  // calculateDistance() async {
+  //   print('inside');
+  //   try{
+  //     print('inside try');
+  //     geolocator.Position currentPosition =
+  //         await geolocator.Geolocator.getCurrentPosition(
+  //       desiredAccuracy: geolocator.LocationAccuracy.high,
+  //     );
+  //     double currentLat = currentPosition.latitude;
+  //     double currentLng = currentPosition.longitude;
+  //
+  //     markersInRange.add(
+  //       Marker(markerId: MarkerId('current lang'), position: currentLocation),
+  //     );
+  //     for (var marker in markerList) {
+  //       double markerLat = marker.position.latitude;
+  //       double markerLng = marker.position.longitude;
+  //
+  //       double distanceInMeters = await geolocator.Geolocator.distanceBetween(
+  //         currentLat,
+  //         currentLng,
+  //         markerLat,
+  //         markerLng,
+  //       );
+  //
+  //       print('distanceInMeters : ' + distanceInMeters.toString());
+  //
+  //       if (distanceInMeters <= 1000) {
+  //         markersInRange.add(marker);
+  //       }
+  //     }
+  //   }catch(e) {
+  //     print('Exception is : ' + e.toString());
+  //   }
+  // }
 
   @override
   void onClose() {
