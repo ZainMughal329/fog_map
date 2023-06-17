@@ -4,7 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fog_map/reuseable/session_manager.dart';
 import 'package:fog_map/sigin/state.dart';
+import 'package:fog_map/views/mapView/map_screen.dart';
 import 'package:get/get.dart';
 
 import '../views/home.dart';
@@ -44,6 +46,7 @@ class SignInController extends GetxController {
       auth
           .createUserWithEmailAndPassword(email: email, password: password)
           .then((value) {
+            SessionController().userId = auth.currentUser!.uid.toString();
         _db.child(auth.currentUser!.uid.toString()).set({
           'id': auth.currentUser!.uid.toString(),
           'userName': userController.text.toString(),
@@ -58,7 +61,7 @@ class SignInController extends GetxController {
         userController.clear();
         emailController.clear();
         passwordController.clear();
-        Get.to(() => HomeScreen());
+        Get.off(() => GMapScreen());
       }).onError((error, stackTrace) {
         state.loading.value = false;
         print('error is : ' + error.toString());
@@ -76,11 +79,12 @@ class SignInController extends GetxController {
       auth
           .signInWithEmailAndPassword(email: email, password: password)
           .then((value) {
+        SessionController().userId = value.user!.uid.toString();
         Get.snackbar('Success', 'Congrats');
 
         emailController.clear();
         passwordController.clear();
-        Get.to(() => HomeScreen());
+        Get.off(() => GMapScreen());
 
         state.loading.value = false;
       }).onError((error, stackTrace) {

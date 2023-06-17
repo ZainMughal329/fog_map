@@ -1,8 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fog_map/reuseable/session_manager.dart';
+import 'package:fog_map/reuseable/utils.dart';
+import 'package:fog_map/sigin/index.dart';
+import 'package:fog_map/sigin/sign_up_view.dart';
 
 
 import 'package:get/get.dart';
@@ -30,8 +36,8 @@ class MapController extends GetxController {
       _currentLocation.value = LatLng(currentLocation.latitude!.toDouble(),
           currentLocation.longitude!.toDouble());
 
-      _locationRef.child(SessionController().userid.toString()).set({
-        'uid': SessionController().userid,
+      _locationRef.child(SessionController().userId.toString()).set({
+        'uid': SessionController().userId,
         'lat': _currentLocation.value.latitude,
         'long': _currentLocation.value.longitude,
       }).onError((error, stackTrace) {
@@ -102,80 +108,151 @@ class GMapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Obx(() {
-      if (_controller.currentLocation.latitude == 0.0 &&
-          _controller.currentLocation.longitude == 0.0) {
-        return const Center(child: CircularProgressIndicator());
-      } else {
-        return StreamBuilder(
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent app from exiting when back button is pressed
+        // Show an exit confirmation dialog to the user
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Exit App'),
+            content: Text('Are you sure you want to exit the app?'),
+            actions: [
+              TextButton(
+                child: Text('No'),
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
+              TextButton(
+                child: Text('Yes'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  SystemNavigator.pop();
+                },
+              ),
+            ],
+          ),
+        );
 
-            stream: ref.onValue,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (!snapshot.hasData) {
+        // Return false to prevent default system back button behavior
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Map Screen"),
+          actions: [
+            InkWell(
+              onTap: ()async{
+                await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Confirmation'),
+                  content: Text('Are you sure you want to LogOut?'),
+                  actions: [
+                    TextButton(
+                      child: Text('No'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    TextButton(
+                      child: Text('Yes'),
 
-                return const CircularProgressIndicator();
-              } else {
-
-                Map<dynamic, dynamic> map = snapshot.data.snapshot.value;
-
-
-                ref.once().then(
-
-                      (DatabaseEvent snapshot) {
-
-
-                    if(snapshot.snapshot!=null){
-
-                      Map<dynamic, dynamic> values =
-                      snapshot.snapshot.value as Map<dynamic, dynamic>;
-                      length = values.length;
-
-
-                      String jsonString = jsonEncode(values);
-                      Map<String, dynamic> data = jsonDecode(jsonString);
-
-
-                      List<dynamic> listKeys = data.keys.toList();
-                      print(listKeys.toString());
-
-                      try{
-                        for (dynamic node in listKeys) {
-                          Map<dynamic, dynamic> childNodes = Map<String, dynamic>.from(data[node]);
-                          print("how many times this block is executing" + childNodes.toString());
-
-                          _controller.addmarker(childNodes.length,childNodes['uid'], childNodes['lat'], childNodes['long']);
+                      onPressed: () async{
+                        await FirebaseAuth.instance.signOut().then((value){
+                          _controller._locationSubscription.cancel();
+                          Navigator.pop(context);
+                          Utils.showToast("Logout Successfully");
+                          // SessionController().userId = "";
+                          Get.off(()=> SignInPage());
+                        }).onError((error, stackTrace){
+                          Utils.showToast(error.toString());
+                        });
 
 
-
-                        }
-                      }catch (e){
-                        Utils.toastMessageCenter(e.toString());
                       }
-
-                    }else{
-                      CircularProgressIndicator();
-
-                    }
-                  },
-                ).onError((error, stackTrace){
-
-                  Utils.toastMessageCenter(error.toString());
-                });
-
-
-                return GoogleMap(
-                  mapType: MapType.normal,
-                  zoomControlsEnabled: true,
-                  initialCameraPosition: CameraPosition(
-                      tilt: 45, target: _controller.currentLocation, zoom: 21),
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller._mapController = controller;
-                  },
-                  markers: Set<Marker>.from(_controller.markerList),
+                    ),
+                  ],
+                ),
                 );
-              }
-            });
-      }
-    }));
+              },
+                child: Icon(Icons.more_vert_rounded)),
+          ],
+        ),
+
+          body: Obx(() {
+        if (_controller.currentLocation.latitude == 0.0 &&
+            _controller.currentLocation.longitude == 0.0) {
+          return const Center(child: CircularProgressIndicator());
+        } else {
+          return StreamBuilder(
+
+              stream: ref.onValue,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (!snapshot.hasData) {
+
+                  return Center(child: const CircularProgressIndicator());
+                } else {
+
+                  Map<dynamic, dynamic> map = snapshot.data.snapshot.value;
+
+
+                  ref.once().then(
+
+                        (DatabaseEvent snapshot) {
+
+
+                      if(snapshot.snapshot!=null){
+
+                        Map<dynamic, dynamic> values =
+                        snapshot.snapshot.value as Map<dynamic, dynamic>;
+                        length = values.length;
+
+
+                        String jsonString = jsonEncode(values);
+                        Map<String, dynamic> data = jsonDecode(jsonString);
+
+
+                        List<dynamic> listKeys = data.keys.toList();
+                        print(listKeys.toString());
+
+                        try{
+                          for (dynamic node in listKeys) {
+                            Map<dynamic, dynamic> childNodes = Map<String, dynamic>.from(data[node]);
+                            print("how many times this block is executing" + childNodes.toString());
+
+                            _controller.addmarker(childNodes.length,childNodes['uid'], childNodes['lat'], childNodes['long']);
+
+
+
+                          }
+                        }catch (e){
+                          Utils.showToast(e.toString());
+                        }
+
+                      }else{
+                        CircularProgressIndicator();
+
+                      }
+                    },
+                  ).onError((error, stackTrace){
+
+
+                    Utils.showToast(error.toString());
+                  });
+
+
+                  return GoogleMap(
+                    mapType: MapType.normal,
+                    zoomControlsEnabled: true,
+                    initialCameraPosition: CameraPosition(
+                        tilt: 45, target: _controller.currentLocation, zoom: 21),
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller._mapController = controller;
+                    },
+                    markers: Set<Marker>.from(_controller.markerList),
+                  );
+                }
+              });
+        }
+      })),
+    );
   }
 }
