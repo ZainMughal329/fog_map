@@ -44,6 +44,8 @@ dependencies:
   flutter_screenutil:
   location:
   google_maps_flutter:
+  syncfusion_flutter_gauges: ^21.2.10
+  geolocator:
 
 dev_dependencies:
   flutter_test:
