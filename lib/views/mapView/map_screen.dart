@@ -9,11 +9,12 @@ import 'package:fog_map/reuseable/session_manager.dart';
 import 'package:fog_map/reuseable/utils.dart';
 import 'package:fog_map/sigin/index.dart';
 import 'package:fog_map/sigin/sign_up_view.dart';
+// import 'package:geolocator/geolocator.dart' as gl;
 // import 'package:geolocator/geolocator.dart' as geolocator;
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:location/location.dart' ;
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 // API KEY : AIzaSyDybIfmudV9fS8lKkTxp3t_S4z6rrBZBXg
 
@@ -25,7 +26,11 @@ class MapController extends GetxController {
   final Map<String, Marker> _markers = {};
   final markerList = <Marker>[].obs;
   // RxList markersInRange = [].obs;
+  // LocationData location = LocationData();
+  // final location = getLocation();
+
   Location location = Location();
+  // Location
   var _currentLocation = LatLng(0.0, 0.0).obs;
   final _locationRef = FirebaseDatabase.instance.ref().child('locations');
   final _ref = FirebaseDatabase.instance.ref();
@@ -40,6 +45,7 @@ class MapController extends GetxController {
     initLocation();
     // calculateDistance();
     // print('length is : ' + markersInRange.length.toString());
+    // location.
 
     location.onLocationChanged.listen((LocationData currentLocation) {
       _currentLocation.value = LatLng(currentLocation.latitude!.toDouble(),
@@ -64,7 +70,8 @@ class MapController extends GetxController {
       if (data == null) {
         return;
       }
-      data.forEach((userId, location) {
+      data.forEach(
+              (userId, location) {
         final lat = location['lat'] as double?;
         final lng = location['lng'] as double?;
         if (lat != null && lng != null) {
@@ -112,6 +119,10 @@ class MapController extends GetxController {
   }
 
   addmarker(var length, dynamic uid, double lat, double long) async {
+
+
+
+
     // markerList.clear();
     final mar = Marker(
         markerId: MarkerId(uid),
@@ -122,6 +133,18 @@ class MapController extends GetxController {
     markerList.add(mar);
 
   }
+
+
+
+
+
+
+
+
+
+
+
+
   // calculateDistance() async {
   //   print('inside');
   //   try{
@@ -298,6 +321,9 @@ class GMapScreen extends StatelessWidget {
                     ).onError((error, stackTrace) {
                       Utils.showToast(error.toString());
                     });
+
+
+
 
                     return Stack(
                       children: [

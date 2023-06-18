@@ -42,10 +42,11 @@ dependencies:
   firebase_storage:
   fluttertoast:
   flutter_screenutil:
-  location:
+  location: ^4.2.0
   google_maps_flutter:
   syncfusion_flutter_gauges: ^21.2.10
 #  geolocator:
+#  geolocator: ^9.0.2
 
 dev_dependencies:
   flutter_test:
