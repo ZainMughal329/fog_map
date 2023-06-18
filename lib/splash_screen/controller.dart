@@ -22,21 +22,21 @@ class SplashScreenController extends GetxController{
 
 
   }
-  void chekSession(){
-    if(FirebaseAuth.instance.currentUser != null){
-      SessionController().userId = FirebaseAuth.instance.currentUser!.uid.toString();
-      Timer(
-          Duration(seconds: 3),
-              ()=> Get.off(()=> GMapScreen())
-      );
-    }else{
-
-      Timer(
-          Duration(seconds: 3),
-              ()=> Get.off(()=> SignInPage())
-      );
-    }
-  }
+  // void chekSession(){
+  //   if(FirebaseAuth.instance.currentUser != null){
+  //     SessionController().userId = FirebaseAuth.instance.currentUser!.uid.toString();
+  //     Timer(
+  //         Duration(seconds: 3),
+  //             ()=> Get.off(()=> GMapScreen())
+  //     );
+  //   }else{
+  //
+  //     Timer(
+  //         Duration(seconds: 3),
+  //             ()=> Get.off(()=> SignInPage())
+  //     );
+  //   }
+  // }
 
 
 }

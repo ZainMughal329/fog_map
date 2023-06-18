@@ -45,6 +45,7 @@ dependencies:
   location: ^4.2.0
   google_maps_flutter:
   syncfusion_flutter_gauges: ^21.2.10
+  shared_preferences:
 #  geolocator:
 #  geolocator: ^9.0.2
 

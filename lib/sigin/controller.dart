@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fog_map/reuseable/session_manager.dart';
+import 'package:fog_map/reuseable/storage_pref.dart';
 import 'package:fog_map/sigin/state.dart';
 import 'package:fog_map/views/mapView/map_screen.dart';
 import 'package:get/get.dart';
@@ -55,6 +56,8 @@ class SignInController extends GetxController {
           'photoUrl': ''
         }).then((value) {
           print('Success');
+          StorePrefrences sp = StorePrefrences();
+          sp.setIsFirstOpen(true);
         });
         state.loading.value = false;
         Get.snackbar('Success', 'Congrats your account has been created');
@@ -82,6 +85,8 @@ class SignInController extends GetxController {
         SessionController().userId = value.user!.uid.toString();
         Get.snackbar('Success', 'Congrats');
 
+        StorePrefrences sp = StorePrefrences();
+        sp.setIsFirstOpen(true);
         emailController.clear();
         passwordController.clear();
         Get.off(() => GMapScreen());
