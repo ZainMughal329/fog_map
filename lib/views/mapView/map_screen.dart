@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
@@ -9,12 +10,13 @@ import 'package:fog_map/reuseable/session_manager.dart';
 import 'package:fog_map/reuseable/utils.dart';
 import 'package:fog_map/sigin/index.dart';
 import 'package:fog_map/sigin/sign_up_view.dart';
+
 // import 'package:geolocator/geolocator.dart' as gl;
 // import 'package:geolocator/geolocator.dart' as geolocator;
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart' ;
+import 'package:location/location.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 // API KEY : AIzaSyDybIfmudV9fS8lKkTxp3t_S4z6rrBZBXg
 
@@ -25,11 +27,15 @@ class MapController extends GetxController {
   // late DatabaseReference _locationRef;
   final Map<String, Marker> _markers = {};
   final markerList = <Marker>[].obs;
+
   // RxList markersInRange = [].obs;
   // LocationData location = LocationData();
   // final location = getLocation();
 
   Location location = Location();
+
+  RxList visibleMarkers = [].obs;
+
   // Location
   var _currentLocation = LatLng(0.0, 0.0).obs;
   final _locationRef = FirebaseDatabase.instance.ref().child('locations');
@@ -43,6 +49,7 @@ class MapController extends GetxController {
   void onInit() {
     super.onInit();
     initLocation();
+    calculateDistances();
     // calculateDistance();
     // print('length is : ' + markersInRange.length.toString());
     // location.
@@ -70,8 +77,7 @@ class MapController extends GetxController {
       if (data == null) {
         return;
       }
-      data.forEach(
-              (userId, location) {
+      data.forEach((userId, location) {
         final lat = location['lat'] as double?;
         final lng = location['lng'] as double?;
         if (lat != null && lng != null) {
@@ -85,6 +91,51 @@ class MapController extends GetxController {
       });
       update();
     });
+  }
+
+  void calculateDistances() {
+    List<Marker> visibleMarkers = getVisibleMarkers();
+    print('length is : ' + visibleMarkers.length.toString());
+    for (var marker in visibleMarkers) {
+      double distance = calculateDistance(currentLocation, marker.position);
+      print('Distance to ${marker.markerId.value}: $distance meters');
+    }
+  }
+
+  List<Marker> getVisibleMarkers() {
+    const double maxDistance = 100; // Maximum distance in meters
+    List<Marker> visibleMarkers = [];
+
+    for (var marker in markerList) {
+      double distance = calculateDistance(currentLocation, marker.position);
+      if (distance <= maxDistance) {
+        visibleMarkers.add(marker);
+      }
+    }
+    // print('visibleMarkers length : ' + visibleMarkers.length.toString());
+    return visibleMarkers;
+  }
+
+  double calculateDistance(LatLng start, LatLng end) {
+    const int earthRadius = 6371000; // in meters
+    double lat1 = degreesToRadians(start.latitude);
+    double lon1 = degreesToRadians(start.longitude);
+    double lat2 = degreesToRadians(end.latitude);
+    double lon2 = degreesToRadians(end.longitude);
+
+    double dLon = lon2 - lon1;
+    double dLat = lat2 - lat1;
+
+    double a = math.pow(math.sin(dLat / 2), 2) +
+        math.cos(lat1) * math.cos(lat2) * math.pow(math.sin(dLon / 2), 2);
+    double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    double distance = earthRadius * c;
+
+    return distance;
+  }
+
+  double degreesToRadians(double degrees) {
+    return degrees * (math.pi / 180);
   }
 
   void initLocation() async {
@@ -119,31 +170,16 @@ class MapController extends GetxController {
   }
 
   addmarker(var length, dynamic uid, double lat, double long) async {
-
-
-
-
     // markerList.clear();
     final mar = Marker(
-        markerId: MarkerId(uid),
-        position: LatLng(lat, long),
-        icon: BitmapDescriptor.defaultMarker,
-        infoWindow: InfoWindow(title: "Current Location"));
+      markerId: MarkerId(uid),
+      position: LatLng(lat, long),
+      icon: BitmapDescriptor.defaultMarker,
+      infoWindow: InfoWindow(title: "Current Location"),
+    );
 
     markerList.add(mar);
-
   }
-
-
-
-
-
-
-
-
-
-
-
 
   // calculateDistance() async {
   //   print('inside');
@@ -272,12 +308,13 @@ class GMapScreen extends StatelessWidget {
                 child: Icon(Icons.more_vert_rounded)),
           ],
         ),
-        body: Obx(() {
-          if (_controller.currentLocation.latitude == 0.0 &&
-              _controller.currentLocation.longitude == 0.0) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return StreamBuilder(
+        body: Obx(
+          () {
+            if (_controller.currentLocation.latitude == 0.0 &&
+                _controller.currentLocation.longitude == 0.0) {
+              return const Center(child: CircularProgressIndicator());
+            } else {
+              return StreamBuilder(
                 stream: ref.onValue,
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (!snapshot.hasData) {
@@ -322,9 +359,6 @@ class GMapScreen extends StatelessWidget {
                       Utils.showToast(error.toString());
                     });
 
-
-
-
                     return Stack(
                       children: [
                         GoogleMap(
@@ -337,7 +371,8 @@ class GMapScreen extends StatelessWidget {
                           onMapCreated: (GoogleMapController controller) {
                             _controller._mapController = controller;
                           },
-                          markers: Set<Marker>.from(_controller.markerList),
+                          markers:
+                              Set<Marker>.from(_controller.getVisibleMarkers()),
                         ),
                         Positioned(
                           bottom: 20,
@@ -402,16 +437,17 @@ class GMapScreen extends StatelessWidget {
                                             child: Column(
                                               children: <Widget>[
                                                 Text(
-                                                    controller.speed
-                                                        .toStringAsFixed(2)
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 7,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
+                                                  controller.speed
+                                                      .toStringAsFixed(2)
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    fontSize: 7,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                                 SizedBox(height: 05),
                                                 Text(
-                                                  'mph',
+                                                  'kmph',
                                                   style: TextStyle(
                                                       fontSize: 7,
                                                       fontWeight:
@@ -432,9 +468,11 @@ class GMapScreen extends StatelessWidget {
                       ],
                     );
                   }
-                });
-          }
-        }),
+                },
+              );
+            }
+          },
+        ),
       ),
     );
   }
