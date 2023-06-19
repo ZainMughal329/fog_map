@@ -10,6 +10,7 @@ import 'package:fog_map/reuseable/session_manager.dart';
 import 'package:fog_map/reuseable/utils.dart';
 import 'package:fog_map/sigin/index.dart';
 import 'package:fog_map/sigin/sign_up_view.dart';
+import 'package:fog_map/views/mapView/show_distance.dart';
 
 // import 'package:geolocator/geolocator.dart' as gl;
 // import 'package:geolocator/geolocator.dart' as geolocator;
@@ -18,221 +19,223 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
+
+import 'controller.dart';
 // API KEY : AIzaSyDybIfmudV9fS8lKkTxp3t_S4z6rrBZBXg
 
-class MapController extends GetxController {
-  late GoogleMapController _mapController;
-  late StreamSubscription _locationSubscription;
-
-  // late DatabaseReference _locationRef;
-  final Map<String, Marker> _markers = {};
-  final markerList = <Marker>[].obs;
-
-  // RxList markersInRange = [].obs;
-  // LocationData location = LocationData();
-  // final location = getLocation();
-
-  Location location = Location();
-
-  RxList visibleMarkers = [].obs;
-
-  // Location
-  var _currentLocation = LatLng(0.0, 0.0).obs;
-  final _locationRef = FirebaseDatabase.instance.ref().child('locations');
-  final _ref = FirebaseDatabase.instance.ref();
-
-  LatLng get currentLocation => _currentLocation.value;
-  LocationData? locationData;
-  double speed = 0.0;
-
-  @override
-  void onInit() {
-    super.onInit();
-    initLocation();
-    calculateDistances();
-    // calculateDistance();
-    // print('length is : ' + markersInRange.length.toString());
-    // location.
-
-    location.onLocationChanged.listen((LocationData currentLocation) {
-      _currentLocation.value = LatLng(currentLocation.latitude!.toDouble(),
-          currentLocation.longitude!.toDouble());
-
-      _locationRef.child(SessionController().userId.toString()).set({
-        'uid': SessionController().userId,
-        'lat': _currentLocation.value.latitude,
-        'long': _currentLocation.value.longitude,
-        'speed': speed,
-      }).onError((error, stackTrace) {
-        Get.snackbar("error", error.toString());
-        if (kDebugMode) {
-          print(error.toString());
-          Get.snackbar("error", error.toString());
-        }
-      });
-    });
-
-    _locationSubscription = _locationRef.onValue.listen((event) {
-      final data = event.snapshot.value as Map<dynamic, dynamic>?;
-      if (data == null) {
-        return;
-      }
-      data.forEach((userId, location) {
-        final lat = location['lat'] as double?;
-        final lng = location['lng'] as double?;
-        if (lat != null && lng != null) {
-          final marker = Marker(
-            markerId: MarkerId(userId),
-            position: LatLng(lat, lng),
-            infoWindow: InfoWindow(title: userId),
-          );
-          markerList.add(marker);
-        }
-      });
-      update();
-    });
-  }
-
-  void calculateDistances() {
-    List<Marker> visibleMarkers = getVisibleMarkers();
-    print('length is : ' + visibleMarkers.length.toString());
-    for (var marker in visibleMarkers) {
-      double distance = calculateDistance(currentLocation, marker.position);
-      print('Distance to ${marker.markerId.value}: $distance meters');
-    }
-  }
-
-  List<Marker> getVisibleMarkers() {
-    const double maxDistance = 100; // Maximum distance in meters
-    List<Marker> visibleMarkers = [];
-
-    for (var marker in markerList) {
-      double distance = calculateDistance(currentLocation, marker.position);
-      if (distance <= maxDistance) {
-        visibleMarkers.add(marker);
-      }
-    }
-    // print('visibleMarkers length : ' + visibleMarkers.length.toString());
-    return visibleMarkers;
-  }
-
-  double calculateDistance(LatLng start, LatLng end) {
-    const int earthRadius = 6371000; // in meters
-    double lat1 = degreesToRadians(start.latitude);
-    double lon1 = degreesToRadians(start.longitude);
-    double lat2 = degreesToRadians(end.latitude);
-    double lon2 = degreesToRadians(end.longitude);
-
-    double dLon = lon2 - lon1;
-    double dLat = lat2 - lat1;
-
-    double a = math.pow(math.sin(dLat / 2), 2) +
-        math.cos(lat1) * math.cos(lat2) * math.pow(math.sin(dLon / 2), 2);
-    double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-    double distance = earthRadius * c;
-
-    return distance;
-  }
-
-  double degreesToRadians(double degrees) {
-    return degrees * (math.pi / 180);
-  }
-
-  void initLocation() async {
-    Location location = Location();
-
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        // Handle if location service is not enabled
-        return;
-      }
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        // Handle if location permission is not granted
-        return;
-      }
-    }
-
-    location.onLocationChanged.listen((LocationData currentLocation) {
-      locationData = currentLocation;
-      speed = currentLocation.speed! * 3.6;
-      update(); // Trigger widget update
-    });
-  }
-
-  addmarker(var length, dynamic uid, double lat, double long) async {
-    // markerList.clear();
-    final mar = Marker(
-      markerId: MarkerId(uid),
-      position: LatLng(lat, long),
-      icon: BitmapDescriptor.defaultMarker,
-      infoWindow: InfoWindow(title: "Current Location"),
-    );
-
-    markerList.add(mar);
-  }
-
-  // calculateDistance() async {
-  //   print('inside');
-  //   try{
-  //     print('inside try');
-  //     geolocator.Position currentPosition =
-  //         await geolocator.Geolocator.getCurrentPosition(
-  //       desiredAccuracy: geolocator.LocationAccuracy.high,
-  //     );
-  //     double currentLat = currentPosition.latitude;
-  //     double currentLng = currentPosition.longitude;
-  //
-  //     markersInRange.add(
-  //       Marker(markerId: MarkerId('current lang'), position: currentLocation),
-  //     );
-  //     for (var marker in markerList) {
-  //       double markerLat = marker.position.latitude;
-  //       double markerLng = marker.position.longitude;
-  //
-  //       double distanceInMeters = await geolocator.Geolocator.distanceBetween(
-  //         currentLat,
-  //         currentLng,
-  //         markerLat,
-  //         markerLng,
-  //       );
-  //
-  //       print('distanceInMeters : ' + distanceInMeters.toString());
-  //
-  //       if (distanceInMeters <= 1000) {
-  //         markersInRange.add(marker);
-  //       }
-  //     }
-  //   }catch(e) {
-  //     print('Exception is : ' + e.toString());
-  //   }
-  // }
-
-  @override
-  void onClose() {
-    _locationSubscription.cancel();
-    super.onClose();
-  }
-
-  void setMapController(GoogleMapController controller) {
-    _mapController = controller;
-  }
-
-  Set<Marker> get markers => Set<Marker>.of(_markers.values);
-
-  void animateTo(LatLng latLng) {
-    _mapController.animateCamera(CameraUpdate.newLatLng(latLng));
-  }
-}
+// class MapController extends GetxController {
+//   late GoogleMapController _mapController;
+//   late StreamSubscription _locationSubscription;
+//
+//   // late DatabaseReference _locationRef;
+//   final Map<String, Marker> _markers = {};
+//   final markerList = <Marker>[].obs;
+//
+//   // RxList markersInRange = [].obs;
+//   // LocationData location = LocationData();
+//   // final location = getLocation();
+//
+//   Location location = Location();
+//
+//   RxList visibleMarkers = [].obs;
+//
+//   // Location
+//   var _currentLocation = LatLng(0.0, 0.0).obs;
+//   final _locationRef = FirebaseDatabase.instance.ref().child('locations');
+//   final _ref = FirebaseDatabase.instance.ref();
+//
+//   LatLng get currentLocation => _currentLocation.value;
+//   LocationData? locationData;
+//   double speed = 0.0;
+//
+//   @override
+//   void onInit() {
+//     super.onInit();
+//     initLocation();
+//     calculateDistances();
+//     // calculateDistance();
+//     // print('length is : ' + markersInRange.length.toString());
+//     // location.
+//
+//     location.onLocationChanged.listen((LocationData currentLocation) {
+//       _currentLocation.value = LatLng(currentLocation.latitude!.toDouble(),
+//           currentLocation.longitude!.toDouble());
+//
+//       _locationRef.child(SessionController().userId.toString()).set({
+//         'uid': SessionController().userId,
+//         'lat': _currentLocation.value.latitude,
+//         'long': _currentLocation.value.longitude,
+//         'speed': speed,
+//       }).onError((error, stackTrace) {
+//         Get.snackbar("error", error.toString());
+//         if (kDebugMode) {
+//           print(error.toString());
+//           Get.snackbar("error", error.toString());
+//         }
+//       });
+//     });
+//
+//     _locationSubscription = _locationRef.onValue.listen((event) {
+//       final data = event.snapshot.value as Map<dynamic, dynamic>?;
+//       if (data == null) {
+//         return;
+//       }
+//       data.forEach((userId, location) {
+//         final lat = location['lat'] as double?;
+//         final lng = location['lng'] as double?;
+//         if (lat != null && lng != null) {
+//           final marker = Marker(
+//             markerId: MarkerId(userId),
+//             position: LatLng(lat, lng),
+//             infoWindow: InfoWindow(title: userId),
+//           );
+//           markerList.add(marker);
+//         }
+//       });
+//       update();
+//     });
+//   }
+//
+//   void calculateDistances() {
+//     List<Marker> visibleMarkers = getVisibleMarkers();
+//     print('length is : ' + visibleMarkers.length.toString());
+//     for (var marker in visibleMarkers) {
+//       double distance = calculateDistance(currentLocation, marker.position);
+//       print('Distance to ${marker.markerId.value}: $distance meters');
+//     }
+//   }
+//
+//   List<Marker> getVisibleMarkers() {
+//     const double maxDistance = 100; // Maximum distance in meters
+//     List<Marker> visibleMarkers = [];
+//
+//     for (var marker in markerList) {
+//       double distance = calculateDistance(currentLocation, marker.position);
+//       if (distance <= maxDistance) {
+//         visibleMarkers.add(marker);
+//       }
+//     }
+//     // print('visibleMarkers length : ' + visibleMarkers.length.toString());
+//     return visibleMarkers;
+//   }
+//
+//   double calculateDistance(LatLng start, LatLng end) {
+//     const int earthRadius = 6371000; // in meters
+//     double lat1 = degreesToRadians(start.latitude);
+//     double lon1 = degreesToRadians(start.longitude);
+//     double lat2 = degreesToRadians(end.latitude);
+//     double lon2 = degreesToRadians(end.longitude);
+//
+//     double dLon = lon2 - lon1;
+//     double dLat = lat2 - lat1;
+//
+//     double a = math.pow(math.sin(dLat / 2), 2) +
+//         math.cos(lat1) * math.cos(lat2) * math.pow(math.sin(dLon / 2), 2);
+//     double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+//     double distance = earthRadius * c;
+//
+//     return distance;
+//   }
+//
+//   double degreesToRadians(double degrees) {
+//     return degrees * (math.pi / 180);
+//   }
+//
+//   void initLocation() async {
+//     Location location = Location();
+//
+//     bool serviceEnabled;
+//     PermissionStatus permissionGranted;
+//
+//     serviceEnabled = await location.serviceEnabled();
+//     if (!serviceEnabled) {
+//       serviceEnabled = await location.requestService();
+//       if (!serviceEnabled) {
+//         // Handle if location service is not enabled
+//         return;
+//       }
+//     }
+//
+//     permissionGranted = await location.hasPermission();
+//     if (permissionGranted == PermissionStatus.denied) {
+//       permissionGranted = await location.requestPermission();
+//       if (permissionGranted != PermissionStatus.granted) {
+//         // Handle if location permission is not granted
+//         return;
+//       }
+//     }
+//
+//     location.onLocationChanged.listen((LocationData currentLocation) {
+//       locationData = currentLocation;
+//       speed = currentLocation.speed! * 3.6;
+//       update(); // Trigger widget update
+//     });
+//   }
+//
+//   addmarker(var length, dynamic uid, double lat, double long) async {
+//     // markerList.clear();
+//     final mar = Marker(
+//       markerId: MarkerId(uid),
+//       position: LatLng(lat, long),
+//       icon: BitmapDescriptor.defaultMarker,
+//       infoWindow: InfoWindow(title: "Current Location"),
+//     );
+//
+//     markerList.add(mar);
+//   }
+//
+//   // calculateDistance() async {
+//   //   print('inside');
+//   //   try{
+//   //     print('inside try');
+//   //     geolocator.Position currentPosition =
+//   //         await geolocator.Geolocator.getCurrentPosition(
+//   //       desiredAccuracy: geolocator.LocationAccuracy.high,
+//   //     );
+//   //     double currentLat = currentPosition.latitude;
+//   //     double currentLng = currentPosition.longitude;
+//   //
+//   //     markersInRange.add(
+//   //       Marker(markerId: MarkerId('current lang'), position: currentLocation),
+//   //     );
+//   //     for (var marker in markerList) {
+//   //       double markerLat = marker.position.latitude;
+//   //       double markerLng = marker.position.longitude;
+//   //
+//   //       double distanceInMeters = await geolocator.Geolocator.distanceBetween(
+//   //         currentLat,
+//   //         currentLng,
+//   //         markerLat,
+//   //         markerLng,
+//   //       );
+//   //
+//   //       print('distanceInMeters : ' + distanceInMeters.toString());
+//   //
+//   //       if (distanceInMeters <= 1000) {
+//   //         markersInRange.add(marker);
+//   //       }
+//   //     }
+//   //   }catch(e) {
+//   //     print('Exception is : ' + e.toString());
+//   //   }
+//   // }
+//
+//   @override
+//   void onClose() {
+//     _locationSubscription.cancel();
+//     super.onClose();
+//   }
+//
+//   void setMapController(GoogleMapController controller) {
+//     _mapController = controller;
+//   }
+//
+//   Set<Marker> get markers => Set<Marker>.of(_markers.values);
+//
+//   void animateTo(LatLng latLng) {
+//     _mapController.animateCamera(CameraUpdate.newLatLng(latLng));
+//   }
+// }
 
 class GMapScreen extends StatelessWidget {
   final _controller = Get.put(MapController());
@@ -292,7 +295,7 @@ class GMapScreen extends StatelessWidget {
                               await FirebaseAuth.instance
                                   .signOut()
                                   .then((value) {
-                                _controller._locationSubscription.cancel();
+                                _controller.locationSubscription.cancel();
                                 Navigator.pop(context);
                                 Utils.showToast("Logout Successfully");
                                 // SessionController().userId = "";
@@ -306,6 +309,12 @@ class GMapScreen extends StatelessWidget {
                   );
                 },
                 child: Icon(Icons.more_vert_rounded)),
+            // InkWell(
+            //   onTap: () {
+            //     // Get.to(() => ShowDistanceScreen());
+            //   },
+            //   child: Text('Distance Screen')  ,
+            // ),
           ],
         ),
         body: Obx(
@@ -369,7 +378,7 @@ class GMapScreen extends StatelessWidget {
                               target: _controller.currentLocation,
                               zoom: 21),
                           onMapCreated: (GoogleMapController controller) {
-                            _controller._mapController = controller;
+                            _controller.mapController = controller;
                           },
                           markers:
                               Set<Marker>.from(_controller.getVisibleMarkers()),
