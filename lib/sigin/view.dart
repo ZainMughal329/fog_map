@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fog_map/sigin/sign_up_view.dart';
-import 'package:fog_map/views/home.dart';
 import 'package:get/get.dart';
+
 import '../reuseable/input_feild.dart';
 import '../reuseable/round_button.dart';
 import 'controller.dart';

@@ -20,7 +20,7 @@ class SplashScreen extends GetView<SplashScreenController> {
 
     Future.delayed(Duration(seconds: 3), () async {
       bool? val = await sp.getIsFirstOpen();
-      if (val == true) {
+      if (val == true && FirebaseAuth.instance.currentUser != null) {
         if (FirebaseAuth.instance.currentUser != null) {
           SessionController().userId =
               FirebaseAuth.instance.currentUser!.uid.toString();

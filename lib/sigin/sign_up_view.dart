@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fog_map/sigin/index.dart';
-import 'package:fog_map/views/home.dart';
 import 'package:get/get.dart';
+
 import '../reuseable/input_feild.dart';
 import '../reuseable/round_button.dart';
-import 'controller.dart';
 
 class SignUpView extends GetView<SignInController> {
   SignUpView({Key? key}) : super(key: key);

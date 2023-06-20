@@ -1,23 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math' as math;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fog_map/reuseable/session_manager.dart';
 import 'package:fog_map/reuseable/utils.dart';
 import 'package:fog_map/sigin/index.dart';
-import 'package:fog_map/sigin/sign_up_view.dart';
-import 'package:fog_map/views/mapView/show_distance.dart';
 
 // import 'package:geolocator/geolocator.dart' as gl;
 // import 'package:geolocator/geolocator.dart' as geolocator;
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 import 'controller.dart';
@@ -295,7 +291,20 @@ class GMapScreen extends StatelessWidget {
                               await FirebaseAuth.instance
                                   .signOut()
                                   .then((value) {
-                                _controller.locationSubscription.cancel();
+                                final ref = FirebaseDatabase.instance
+                                    .ref()
+                                    .child('locations');
+                                ref
+                                    .child(
+                                        SessionController().userId.toString())
+                                    .remove()
+                                    .then((value) {
+                                  _controller.locationSubscription.cancel();
+                                  Utils.showToast('Remove success');
+                                }).onError((error, stackTrace) {
+                                  Utils.showToast(
+                                      'Error occured : ${error.toString()}');
+                                });
                                 Navigator.pop(context);
                                 Utils.showToast("Logout Successfully");
                                 // SessionController().userId = "";
@@ -351,7 +360,7 @@ class GMapScreen extends StatelessWidget {
                               print("how many times this block is executing" +
                                   childNodes.toString());
 
-                              _controller.addmarker(
+                              _controller.addMarker(
                                   childNodes.length,
                                   childNodes['uid'],
                                   childNodes['lat'],

@@ -1,15 +1,11 @@
-
-class SessionController{
-
+class SessionController {
   static final SessionController _session = SessionController._internal();
 
   String? userId;
 
-  factory SessionController(){
+  factory SessionController() {
     return _session;
   }
 
-  SessionController._internal(){
-
-  }
+  SessionController._internal() {}
 }

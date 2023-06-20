@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,8 +7,6 @@ import 'package:fog_map/reuseable/storage_pref.dart';
 import 'package:fog_map/sigin/state.dart';
 import 'package:fog_map/views/mapView/map_screen.dart';
 import 'package:get/get.dart';
-
-import '../views/home.dart';
 
 class SignInController extends GetxController {
   var verificationId = "".obs;
@@ -47,7 +43,7 @@ class SignInController extends GetxController {
       auth
           .createUserWithEmailAndPassword(email: email, password: password)
           .then((value) {
-            SessionController().userId = auth.currentUser!.uid.toString();
+        SessionController().userId = auth.currentUser!.uid.toString();
         _db.child(auth.currentUser!.uid.toString()).set({
           'id': auth.currentUser!.uid.toString(),
           'userName': userController.text.toString(),

@@ -5,24 +5,26 @@ class InputTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final bool obsecure;
   IconData icon;
-  TextEditingController contr; FocusNode focNode;
-  String labelText; String descrip;
+  TextEditingController contr;
+  FocusNode focNode;
+  String labelText;
+  String descrip;
 
-  InputTextField(
-      {super.key,
-        required this.contr,
-        required this.descrip,
-        required this.focNode,
-        required this.labelText,
-        required this.keyboardType,
-        required this.obsecure,
-        required this.icon,
-      });
+  InputTextField({
+    super.key,
+    required this.contr,
+    required this.descrip,
+    required this.focNode,
+    required this.labelText,
+    required this.keyboardType,
+    required this.obsecure,
+    required this.icon,
+  });
 
   @override
-  Widget build(BuildContext context)  {
+  Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w , vertical: 5.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
       child: TextFormField(
         controller: contr,
         obscureText: obsecure,
@@ -31,7 +33,6 @@ class InputTextField extends StatelessWidget {
         validator: (value) {},
         onFieldSubmitted: (value) {},
         decoration: InputDecoration(
-
           prefixIcon: Icon(icon),
           hintText: descrip,
           labelText: labelText,
@@ -47,7 +48,4 @@ class InputTextField extends StatelessWidget {
       ),
     );
   }
-
-
 }
-
