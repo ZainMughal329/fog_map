@@ -259,7 +259,14 @@ class GMapScreen extends StatelessWidget {
                 child: Text('Yes'),
                 onPressed: () {
                   Navigator.pop(context);
-                  SystemNavigator.pop();
+                  SystemNavigator.pop().then((value)async{
+                    await _controller.locRef.child(SessionController().userId.toString()).remove();
+
+
+                  }).onError((error, stackTrace){
+                   Utils.showToast(error.toString());
+
+                  });
                 },
               ),
             ],
@@ -279,7 +286,7 @@ class GMapScreen extends StatelessWidget {
                     context: context,
                     builder: (context) => AlertDialog(
                       title: Text('Confirmation'),
-                      content: Text('Are you sure you want to LogOut?'),
+                      content: Text('Are you sure you want to LogOut and Exit application?'),
                       actions: [
                         TextButton(
                           child: Text('No'),
@@ -291,25 +298,18 @@ class GMapScreen extends StatelessWidget {
                               await FirebaseAuth.instance
                                   .signOut()
                                   .then((value) {
-                                final ref = FirebaseDatabase.instance
-                                    .ref()
-                                    .child('locations');
-                                ref
-                                    .child(
-                                        SessionController().userId.toString())
-                                    .remove()
-                                    .then((value) {
-                                  _controller.locationSubscription.cancel();
-                                  Utils.showToast('Remove success');
-                                }).onError((error, stackTrace) {
-                                  Utils.showToast(
-                                      'Error occured : ${error.toString()}');
-                                });
-                                Navigator.pop(context);
-                                Utils.showToast("Logout Successfully");
-                                // SessionController().userId = "";
-                                Get.off(() => SignInPage());
-                              }).onError((error, stackTrace) {
+
+                                    SystemNavigator.pop().then((value)async{
+                                      await _controller.locRef.child(SessionController().userId.toString()).remove();
+                                    }).onError((error, stackTrace){
+
+                                    });
+                              }
+                                ).
+
+
+
+                              onError((error, stackTrace) {
                                 Utils.showToast(error.toString());
                               });
                             }),

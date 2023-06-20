@@ -32,7 +32,7 @@ class WelcomePage extends StatelessWidget {
               child: RoundButton(
                   title: "Go to SignUp Page",
                   onPress: () {
-                    Get.off(() => SignInPage());
+                    Get.offAll(() => SignInPage());
                   }),
             )
           ],
@@ -60,10 +60,7 @@ class WelcomePage extends StatelessWidget {
               print('Page changed to index $index');
               controller.state.index.value = index;
             },
-            controller: PageController(
-              initialPage: 0, // Set the initial page
-              // viewportFraction: 0.91, // Set the visible fraction of each page
-            ),
+
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20),

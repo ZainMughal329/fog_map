@@ -26,6 +26,7 @@ class MapController extends GetxController {
   // Location
   var _currentLocation = LatLng(0.0, 0.0).obs;
   final _locationRef = FirebaseDatabase.instance.ref().child('locations');
+  final locRef = FirebaseDatabase.instance.ref().child('locations');
 
   LatLng get currentLocation => _currentLocation.value;
   LocationData? locationData;

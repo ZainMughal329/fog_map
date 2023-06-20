@@ -139,21 +139,23 @@ class SignInPage extends GetView<SignInController> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20.h),
-                  child: RoundButton(
-                    title: 'LogIn',
-                    // loading: controller.state.loading.value,
-                    onPress: () {
-                      if (_formKwy.currentState!.validate()) {
-                        controller.logInUser(
-                          controller.emailController.text.trim(),
-                          controller.passwordController.text.trim(),
-                        );
-                      }
-                    },
-                  ),
-                ),
+                Obx((){
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20.h),
+                    child: RoundButton(
+                      title: 'LogIn',
+                      loading: controller.state.loading.value,
+                      onPress: () {
+                        if (_formKwy.currentState!.validate()) {
+                          controller.logInUser(
+                            controller.emailController.text.trim(),
+                            controller.passwordController.text.trim(),
+                          );
+                        }
+                      },
+                    ),
+                  );
+                }),
                 // _buildThirdPartyServices('Google', 'google'),
                 SizedBox(height: 15.h),
                 InkWell(
