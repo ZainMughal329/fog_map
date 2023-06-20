@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -30,6 +31,7 @@ class MapController extends GetxController {
   // late DatabaseReference _locationRef;
   final Map<String, Marker> _markers = {};
   final markerList = <Marker>[].obs;
+  Uint8List? markerImage;
 
   // RxList markersInRange = [].obs;
   // LocationData location = LocationData();
@@ -47,11 +49,23 @@ class MapController extends GetxController {
   LatLng get currentLocation => _currentLocation.value;
   LocationData? locationData;
   double speed = 0.0;
+
   // RxList<double> distances = <double>[].obs;
   final List<double> distances = [];
 
   // final Set<Marker> markers = Set<Marker>().obs;
   // final List<MarkerDistance> markerDistances = <MarkerDistance>[].obs;
+
+  Future<Uint8List> getBytesFromAssets(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -239,17 +253,20 @@ class MapController extends GetxController {
   }
 
   addmarker(var length, dynamic uid, double lat, double long) async {
+    final Uint8List markerIcon =
+        await getBytesFromAssets('assets/images/car.png', 50);
     // markerList.clear();
     final mar = Marker(
       markerId: MarkerId(uid),
       position: LatLng(lat, long),
-      icon: BitmapDescriptor.defaultMarker,
-      infoWindow: InfoWindow(title: "Current Location"),
+      icon: BitmapDescriptor.fromBytes(markerIcon),
+      infoWindow: InfoWindow(
+        title: "Speed is : " + (speed * 3.6).toStringAsFixed(2).toString(),
+      ),
     );
 
     markerList.add(mar);
   }
-
 
   @override
   void onClose() {
