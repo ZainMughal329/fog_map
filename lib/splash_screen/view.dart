@@ -9,6 +9,7 @@ import 'package:fog_map/welcom_screens/index.dart';
 import 'package:get/get.dart';
 
 import '../reuseable/session_manager.dart';
+import '../views/mapView/home_page.dart';
 import '../views/mapView/map_screen.dart';
 
 class SplashScreen extends GetView<SplashScreenController> {
@@ -20,11 +21,11 @@ class SplashScreen extends GetView<SplashScreenController> {
 
     Future.delayed(Duration(seconds: 3), () async {
       bool? val = await sp.getIsFirstOpen();
-      if (val == true && FirebaseAuth.instance.currentUser != null) {
+      if (val == true) {
         if (FirebaseAuth.instance.currentUser != null) {
           SessionController().userId =
               FirebaseAuth.instance.currentUser!.uid.toString();
-          Get.off(() => GMapScreen());
+          Get.off(() => HomeScreen());
         } else {
           Get.off(() => SignInPage());
         }

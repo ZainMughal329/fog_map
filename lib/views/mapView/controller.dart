@@ -2,18 +2,25 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fog_map/reuseable/session_manager.dart';
+import 'package:fog_map/reuseable/utils.dart';
+import 'package:fog_map/views/mapView/index.dart';
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
-class MapController extends GetxController {
+class GMapController extends GetxController {
+  String modelNum = '';
   late GoogleMapController mapController;
   late StreamSubscription locationSubscription;
+  String vehicleType = '';
 
   final Map<String, Marker> _markers = {};
   final markerList = <Marker>[].obs;
@@ -23,14 +30,19 @@ class MapController extends GetxController {
 
   RxList visibleMarkers = [].obs;
 
+
+  TextEditingController feedbackController = TextEditingController();
+
   // Location
   var _currentLocation = LatLng(0.0, 0.0).obs;
   final _locationRef = FirebaseDatabase.instance.ref().child('locations');
   final locRef = FirebaseDatabase.instance.ref().child('locations');
+  final userRef = FirebaseDatabase.instance.ref().child('users');
 
   LatLng get currentLocation => _currentLocation.value;
   LocationData? locationData;
   double speed = 0.0;
+  String name = SessionController().userName.toString();
 
   // Adding custom marker
   Future<Uint8List> getBytesFromAssets(String path, int width) async {
@@ -59,6 +71,9 @@ class MapController extends GetxController {
         'lat': _currentLocation.value.latitude,
         'long': _currentLocation.value.longitude,
         'speed': speed,
+        'type' : vehicleType,
+        'model' : feedbackController.text.toString(),
+        // 'name' : name,
       }).onError((error, stackTrace) {
         Get.snackbar("error", error.toString());
         if (kDebugMode) {
@@ -81,7 +96,7 @@ class MapController extends GetxController {
           final marker = Marker(
             markerId: MarkerId(userId),
             position: LatLng(lat, lng),
-            infoWindow: InfoWindow(title: speed!.toStringAsFixed(2).toString()),
+            infoWindow: InfoWindow(title: name,),
           );
           markerList.add(marker);
         }
@@ -174,19 +189,70 @@ class MapController extends GetxController {
 
   // Adding markers
   addMarker(var length, dynamic uid, double lat, double long) async {
-    final Uint8List markerIcon =
-        await getBytesFromAssets('assets/images/car.png', 50);
+    final Uint8List markerIcon;
+    if(vehicleType == 'Car') {
+
+      markerIcon =
+      await getBytesFromAssets('assets/images/car.png', 50);
+    }else if(vehicleType == 'Bus') {
+      markerIcon =
+      await getBytesFromAssets('assets/images/bus.png', 50);
+    }else if(vehicleType == 'Bike') {
+      markerIcon =
+      await getBytesFromAssets('assets/images/bycicle.png', 50);
+    }else {
+      markerIcon =
+      await getBytesFromAssets('assets/images/walk.png', 50);
+    }
     // markerList.clear();
     final mar = Marker(
       markerId: MarkerId(uid),
       position: LatLng(lat, long),
       icon: BitmapDescriptor.fromBytes(markerIcon),
       infoWindow: InfoWindow(
-        title: "Speed is : " + (speed * 3.6).toStringAsFixed(2).toString(),
+        title: "Name is : " + name,
       ),
     );
 
     markerList.add(mar);
+  }
+
+
+  // Dialog box that appear to check weather model number is not empty
+  void showFeedbackDialog(BuildContext context) {
+    showDialog(
+
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: Text('Model Number'),
+        content: TextFormField(
+          controller: feedbackController,
+          decoration: InputDecoration(
+            hintText: 'Enter Model Number :',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+              if (feedbackController.text.isEmpty) {
+                Utils.showToast(
+                'Feedback Required \nPlease provide feedback before deleting.',
+                  // snackPosition: SnackPosition.BOTTOM,
+                );
+              } else {
+                // deleteItem();
+                modelNum = feedbackController.text.toString();
+                Get.to( () => GMapScreen());
+              }
+              feedbackController.clear(); // Clear the text field
+            },
+            child: Text('Ok'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

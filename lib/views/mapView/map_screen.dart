@@ -233,8 +233,274 @@ import 'controller.dart';
 //   }
 // }
 
+// class GMapScreen extends StatelessWidget {
+//   GMapScreen({Key? key}) : super(key: key);
+//   // String userName;
+//   final _controller = Get.put(GMapController());
+//   final ref = FirebaseDatabase.instance.ref().child('locations');
+//   var length;
+//   Map<dynamic, dynamic>? values;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return WillPopScope(
+//       onWillPop: () async {
+//         // Prevent app from exiting when back button is pressed
+//         // Show an exit confirmation dialog to the user
+//         showDialog(
+//           context: context,
+//           builder: (context) => AlertDialog(
+//             title: Text('Exit App'),
+//             content: Text('Are you sure you want to exit the app?'),
+//             actions: [
+//               TextButton(
+//                 child: Text('No'),
+//                 onPressed: () => Navigator.of(context).pop(false),
+//               ),
+//               TextButton(
+//                 child: Text('Yes'),
+//                 onPressed: () {
+//                   Navigator.pop(context);
+//                   SystemNavigator.pop().then((value)async{
+//                     await _controller.locRef.child(SessionController().userId.toString()).remove();
+//
+//
+//                   }).onError((error, stackTrace){
+//                    Utils.showToast(error.toString());
+//
+//                   });
+//                 },
+//               ),
+//             ],
+//           ),
+//         );
+//
+//         // Return false to prevent default system back button behavior
+//         return false;
+//       },
+//       child: Scaffold(
+//         appBar: AppBar(
+//           title: Text("Map Screen"),
+//           actions: [
+//             InkWell(
+//                 onTap: () async {
+//                   await showDialog(
+//                     context: context,
+//                     builder: (context) => AlertDialog(
+//                       title: Text('Confirmation'),
+//                       content: Text('Are you sure you want to LogOut and Exit application?'),
+//                       actions: [
+//                         TextButton(
+//                           child: Text('No'),
+//                           onPressed: () => Navigator.pop(context),
+//                         ),
+//                         TextButton(
+//                             child: Text('Yes'),
+//                             onPressed: () async {
+//                               await FirebaseAuth.instance
+//                                   .signOut()
+//                                   .then((value) {
+//
+//                                     SystemNavigator.pop().then((value)async{
+//                                       await _controller.locRef.child(SessionController().userId.toString()).remove();
+//                                     }).onError((error, stackTrace){
+//
+//                                     });
+//                               }
+//                                 ).
+//
+//
+//
+//                               onError((error, stackTrace) {
+//                                 Utils.showToast(error.toString());
+//                               });
+//                             }),
+//                       ],
+//                     ),
+//                   );
+//                 },
+//                 child: Icon(Icons.more_vert_rounded)),
+//             // InkWell(
+//             //   onTap: () {
+//             //     // Get.to(() => ShowDistanceScreen());
+//             //   },
+//             //   child: Text('Distance Screen')  ,
+//             // ),
+//           ],
+//         ),
+//         body: Obx(
+//           () {
+//             if (_controller.currentLocation.latitude == 0.0 &&
+//                 _controller.currentLocation.longitude == 0.0) {
+//               return const Center(child: CircularProgressIndicator());
+//             } else {
+//               return StreamBuilder(
+//                 stream: ref.onValue,
+//                 builder: (BuildContext context, AsyncSnapshot snapshot) {
+//                   if (!snapshot.hasData) {
+//                     return Center(child: const CircularProgressIndicator());
+//                   } else {
+//                     Map<dynamic, dynamic> map = snapshot.data.snapshot.value;
+//
+//                     ref.once().then(
+//                       (DatabaseEvent snapshot) {
+//                         if (snapshot.snapshot != null) {
+//                           Map<dynamic, dynamic> values =
+//                               snapshot.snapshot.value as Map<dynamic, dynamic>;
+//                           length = values.length;
+//
+//                           String jsonString = jsonEncode(values);
+//                           Map<String, dynamic> data = jsonDecode(jsonString);
+//
+//                           List<dynamic> listKeys = data.keys.toList();
+//                           print(listKeys.toString());
+//
+//                           try {
+//                             for (dynamic node in listKeys) {
+//                               Map<dynamic, dynamic> childNodes =
+//                                   Map<String, dynamic>.from(data[node]);
+//                               print("how many times this block is executing" +
+//                                   childNodes.toString());
+//
+//                               _controller.addMarker(
+//                                   childNodes.length,
+//                                   childNodes['uid'],
+//                                   childNodes['lat'],
+//                                   childNodes['long']);
+//                             }
+//                           } catch (e) {
+//                             Utils.showToast(e.toString());
+//                           }
+//                         } else {
+//                           CircularProgressIndicator();
+//                         }
+//                       },
+//                     ).onError((error, stackTrace) {
+//                       Utils.showToast(error.toString());
+//                     });
+//
+//                     return Stack(
+//                       children: [
+//                         GoogleMap(
+//                           mapType: MapType.normal,
+//                           zoomControlsEnabled: true,
+//                           initialCameraPosition: CameraPosition(
+//                               tilt: 45,
+//                               target: _controller.currentLocation,
+//                               zoom: 21),
+//                           onMapCreated: (GoogleMapController controller) {
+//                             _controller.mapController = controller;
+//                           },
+//                           markers:
+//                               Set<Marker>.from(_controller.getVisibleMarkers()),
+//                         ),
+//                         Positioned(
+//                           bottom: 20,
+//                           left: 20,
+//                           child: GetBuilder<GMapController>(
+//                             builder: (controller) => Container(
+//                               height: 110,
+//                               width: 110,
+//                               child: SfRadialGauge(
+//                                 axes: <RadialAxis>[
+//                                   RadialAxis(
+//                                     minimum: 0,
+//                                     maximum: 200,
+//                                     labelOffset: 10,
+//                                     axisLineStyle: AxisLineStyle(
+//                                         thicknessUnit: GaugeSizeUnit.factor,
+//                                         thickness: 0.03),
+//                                     majorTickStyle: MajorTickStyle(
+//                                         length: 2,
+//                                         thickness: 0.5,
+//                                         color: Colors.black),
+//                                     minorTickStyle: MinorTickStyle(
+//                                         length: 2,
+//                                         thickness: 0.5,
+//                                         color: Colors.black),
+//                                     axisLabelStyle: GaugeTextStyle(
+//                                         color: Colors.black,
+//                                         // fontWeight: FontWeight.bold,
+//                                         fontSize: 10),
+//                                     ranges: <GaugeRange>[
+//                                       GaugeRange(
+//                                         startValue: 0,
+//                                         endValue: 200,
+//                                         sizeUnit: GaugeSizeUnit.factor,
+//                                         startWidth: 0.03,
+//                                         endWidth: 0.03,
+//                                         gradient: SweepGradient(
+//                                           colors: const <Color>[
+//                                             Colors.green,
+//                                             Colors.yellow,
+//                                             Colors.red
+//                                           ],
+//                                           stops: const <double>[0.0, 0.5, 1],
+//                                         ),
+//                                       ),
+//                                     ],
+//                                     pointers: <GaugePointer>[
+//                                       NeedlePointer(
+//                                         value: controller.speed,
+//                                         needleLength: 0.95,
+//                                         enableAnimation: true,
+//                                         animationType: AnimationType.ease,
+//                                         needleStartWidth: 0.20,
+//                                         needleEndWidth: 2,
+//                                         needleColor: Colors.red,
+//                                         knobStyle: KnobStyle(knobRadius: 0.05),
+//                                       ),
+//                                     ],
+//                                     annotations: <GaugeAnnotation>[
+//                                       GaugeAnnotation(
+//                                           widget: Container(
+//                                             child: Column(
+//                                               children: <Widget>[
+//                                                 Text(
+//                                                   controller.speed
+//                                                       .toStringAsFixed(2)
+//                                                       .toString(),
+//                                                   style: TextStyle(
+//                                                     fontSize: 7,
+//                                                     fontWeight: FontWeight.bold,
+//                                                   ),
+//                                                 ),
+//                                                 SizedBox(height: 05),
+//                                                 Text(
+//                                                   'kmph',
+//                                                   style: TextStyle(
+//                                                       fontSize: 7,
+//                                                       fontWeight:
+//                                                           FontWeight.bold),
+//                                                 ),
+//                                               ],
+//                                             ),
+//                                           ),
+//                                           angle: 90,
+//                                           positionFactor: 0.75),
+//                                     ],
+//                                   ),
+//                                 ],
+//                               ),
+//                             ),
+//                           ),
+//                         ),
+//                       ],
+//                     );
+//                   }
+//                 },
+//               );
+//             }
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }
 class GMapScreen extends StatelessWidget {
-  final _controller = Get.put(MapController());
+  GMapScreen({Key? key , }) : super(key: key);
+
+  final _controller = Get.put(GMapController());
   final ref = FirebaseDatabase.instance.ref().child('locations');
   var length;
   Map<dynamic, dynamic>? values;
@@ -264,7 +530,7 @@ class GMapScreen extends StatelessWidget {
 
 
                   }).onError((error, stackTrace){
-                   Utils.showToast(error.toString());
+                    Utils.showToast(error.toString());
 
                   });
                 },
@@ -299,13 +565,13 @@ class GMapScreen extends StatelessWidget {
                                   .signOut()
                                   .then((value) {
 
-                                    SystemNavigator.pop().then((value)async{
-                                      await _controller.locRef.child(SessionController().userId.toString()).remove();
-                                    }).onError((error, stackTrace){
+                                SystemNavigator.pop().then((value)async{
+                                  await _controller.locRef.child(SessionController().userId.toString()).remove();
+                                }).onError((error, stackTrace){
 
-                                    });
+                                });
                               }
-                                ).
+                              ).
 
 
 
@@ -327,7 +593,7 @@ class GMapScreen extends StatelessWidget {
           ],
         ),
         body: Obx(
-          () {
+              () {
             if (_controller.currentLocation.latitude == 0.0 &&
                 _controller.currentLocation.longitude == 0.0) {
               return const Center(child: CircularProgressIndicator());
@@ -341,10 +607,10 @@ class GMapScreen extends StatelessWidget {
                     Map<dynamic, dynamic> map = snapshot.data.snapshot.value;
 
                     ref.once().then(
-                      (DatabaseEvent snapshot) {
+                          (DatabaseEvent snapshot) {
                         if (snapshot.snapshot != null) {
                           Map<dynamic, dynamic> values =
-                              snapshot.snapshot.value as Map<dynamic, dynamic>;
+                          snapshot.snapshot.value as Map<dynamic, dynamic>;
                           length = values.length;
 
                           String jsonString = jsonEncode(values);
@@ -356,7 +622,7 @@ class GMapScreen extends StatelessWidget {
                           try {
                             for (dynamic node in listKeys) {
                               Map<dynamic, dynamic> childNodes =
-                                  Map<String, dynamic>.from(data[node]);
+                              Map<String, dynamic>.from(data[node]);
                               print("how many times this block is executing" +
                                   childNodes.toString());
 
@@ -390,12 +656,12 @@ class GMapScreen extends StatelessWidget {
                             _controller.mapController = controller;
                           },
                           markers:
-                              Set<Marker>.from(_controller.getVisibleMarkers()),
+                          Set<Marker>.from(_controller.getVisibleMarkers()),
                         ),
                         Positioned(
                           bottom: 20,
                           left: 20,
-                          child: GetBuilder<MapController>(
+                          child: GetBuilder<GMapController>(
                             builder: (controller) => Container(
                               height: 110,
                               width: 110,
@@ -469,7 +735,7 @@ class GMapScreen extends StatelessWidget {
                                                   style: TextStyle(
                                                       fontSize: 7,
                                                       fontWeight:
-                                                          FontWeight.bold),
+                                                      FontWeight.bold),
                                                 ),
                                               ],
                                             ),

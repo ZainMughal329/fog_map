@@ -8,6 +8,7 @@ import '../reuseable/round_button.dart';
 import 'controller.dart';
 
 class SignInPage extends GetView<SignInController> {
+
   SignInPage({Key? key}) : super(key: key);
   final _formKwy = GlobalKey<FormState>();
 

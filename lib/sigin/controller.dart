@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fog_map/reuseable/session_manager.dart';
 import 'package:fog_map/reuseable/storage_pref.dart';
 import 'package:fog_map/sigin/state.dart';
+import 'package:fog_map/views/mapView/home_page.dart';
 import 'package:fog_map/views/mapView/map_screen.dart';
 import 'package:get/get.dart';
 
@@ -12,6 +13,7 @@ class SignInController extends GetxController {
   var verificationId = "".obs;
 
   final state = SignInState();
+
 
   final auth = FirebaseAuth.instance;
 
@@ -44,6 +46,8 @@ class SignInController extends GetxController {
           .createUserWithEmailAndPassword(email: email, password: password)
           .then((value) {
         SessionController().userId = auth.currentUser!.uid.toString();
+        SessionController().userName =  userController.text;
+
         _db.child(auth.currentUser!.uid.toString()).set({
           'id': auth.currentUser!.uid.toString(),
           'userName': userController.text.toString(),
@@ -53,6 +57,7 @@ class SignInController extends GetxController {
         }).then((value) {
           print('Success');
           StorePrefrences sp = StorePrefrences();
+
           sp.setIsFirstOpen(true);
         });
         state.loading.value = false;
@@ -60,7 +65,7 @@ class SignInController extends GetxController {
         userController.clear();
         emailController.clear();
         passwordController.clear();
-        Get.off(() => GMapScreen());
+        Get.off(() => HomeScreen());
       }).onError((error, stackTrace) {
         state.loading.value = false;
         print('error is : ' + error.toString());
