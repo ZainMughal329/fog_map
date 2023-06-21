@@ -21,6 +21,8 @@ class GMapController extends GetxController {
   late GoogleMapController mapController;
   late StreamSubscription locationSubscription;
   String vehicleType = '';
+  // final name =  FirebaseAuth.instance.currentUser!.displayName.toString();
+
 
   final Map<String, Marker> _markers = {};
   final markerList = <Marker>[].obs;
@@ -38,6 +40,7 @@ class GMapController extends GetxController {
   final _locationRef = FirebaseDatabase.instance.ref().child('locations');
   final locRef = FirebaseDatabase.instance.ref().child('locations');
   final userRef = FirebaseDatabase.instance.ref().child('users');
+  // String name = "null";
 
   LatLng get currentLocation => _currentLocation.value;
   LocationData? locationData;
@@ -55,24 +58,62 @@ class GMapController extends GetxController {
         .asUint8List();
   }
 
+  void getName()async{
+
+    await userRef.child(SessionController().userId.toString()).get().then((DataSnapshot snapshot){
+      // print("inside name funciton");
+      var childNodeData = snapshot!.value as Map<dynamic,dynamic> ;
+      if(childNodeData!=null){
+        if(kDebugMode){
+
+          print(childNodeData.toString());
+        }
+        var name=childNodeData['userName'];
+        print("Name is $name");
+        SessionController().userName=name.toString();
+
+      }
+    }).onError((error, stackTrace){
+      print("Error whilte fetching name of user");
+      print(error.toString());
+    });
+  }
+
+  // Future<void> getName() async{
+  //   await userRef.child(SessionController().userId.toString()).get().then((DataSnapshot snapshot){
+  //     var childNodeData = snapshot!.value as Map<dynamic, dynamic>;
+  //     if(childNodeData!=null){
+  //       if(kDebugMode){
+  //         print(childNodeData.toString());
+  //       }
+  //       name=childNodeData['name'].toString();
+  //       print("Name is $name");
+  //     }
+  //   }).onError((error, stackTrace){
+  //     print("Error whilte fetching name of user");
+  //   });
+  // }
+
   // Called and initialized all the methods when app starts
   @override
   void onInit() {
     super.onInit();
     initLocation();
     calculateDistances();
+    getName();
 
     location.onLocationChanged.listen((LocationData currentLocation) {
       _currentLocation.value = LatLng(currentLocation.latitude!.toDouble(),
           currentLocation.longitude!.toDouble());
 
       _locationRef.child(SessionController().userId.toString()).set({
-        'uid': SessionController().userId,
+        'uid': SessionController().userId.toString(),
         'lat': _currentLocation.value.latitude,
         'long': _currentLocation.value.longitude,
         'speed': speed,
         'type' : vehicleType,
         'model' : modelNum,
+        'name' : SessionController().userName.toString(),
         // 'name' : userRef.child(SessionController().userId.toString()).get().,
       }).onError((error, stackTrace) {
         Get.snackbar("error", error.toString());
@@ -91,12 +132,13 @@ class GMapController extends GetxController {
       data.forEach((userId, location) {
         final lat = location['lat'] as double?;
         final lng = location['lng'] as double?;
-        // final speed = location['speed'] as double?;
+
+        final speed = location['speed'] as double?;
         if (lat != null && lng != null) {
           final marker = Marker(
             markerId: MarkerId(userId),
             position: LatLng(lat, lng),
-            infoWindow: InfoWindow(title: name,),
+            infoWindow: InfoWindow(title: speed!.toStringAsFixed(2).toString(),),
           );
           markerList.add(marker);
         }

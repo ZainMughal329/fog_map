@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:fog_map/reuseable/session_manager.dart';
 import 'package:fog_map/reuseable/utils.dart';
 import 'package:fog_map/sigin/index.dart';
+import 'package:fog_map/views/distanceScreen/view.dart';
 
 // import 'package:geolocator/geolocator.dart' as gl;
 // import 'package:geolocator/geolocator.dart' as geolocator;
@@ -566,8 +568,16 @@ class GMapScreen extends StatelessWidget {
                                   .then((value) {
 
                                 SystemNavigator.pop().then((value)async{
-                                  await _controller.locRef.child(SessionController().userId.toString()).remove();
+                                  await _controller.locRef.child(SessionController().userId.toString()).remove().then((value){
+                                    exit(0);
+                                  });
+                                  // exit(0);
                                 }).onError((error, stackTrace){
+                                  Utils.showToast("App Colosed");
+                                  // return true;
+                                  throw{
+
+                                  };
 
                                 });
                               }
@@ -584,12 +594,13 @@ class GMapScreen extends StatelessWidget {
                   );
                 },
                 child: Icon(Icons.more_vert_rounded)),
-            // InkWell(
-            //   onTap: () {
-            //     // Get.to(() => ShowDistanceScreen());
-            //   },
-            //   child: Text('Distance Screen')  ,
-            // ),
+            InkWell(
+              onTap: () {
+                Get.to(DistanceScreen());
+                // Get.to(() => ShowDistanceScreen());
+              },
+              child: Icon(Icons.social_distance)  ,
+            ),
           ],
         ),
         body: Obx(
