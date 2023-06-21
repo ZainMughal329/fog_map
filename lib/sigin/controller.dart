@@ -90,7 +90,7 @@ class SignInController extends GetxController {
         sp.setIsFirstOpen(true);
         emailController.clear();
         passwordController.clear();
-        Get.off(() => GMapScreen());
+        Get.off(() => HomeScreen());
 
         state.loading.value = false;
       }).onError((error, stackTrace) {

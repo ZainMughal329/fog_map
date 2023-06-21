@@ -72,8 +72,8 @@ class GMapController extends GetxController {
         'long': _currentLocation.value.longitude,
         'speed': speed,
         'type' : vehicleType,
-        'model' : feedbackController.text.toString(),
-        // 'name' : name,
+        'model' : modelNum,
+        // 'name' : userRef.child(SessionController().userId.toString()).get().,
       }).onError((error, stackTrace) {
         Get.snackbar("error", error.toString());
         if (kDebugMode) {
@@ -91,7 +91,7 @@ class GMapController extends GetxController {
       data.forEach((userId, location) {
         final lat = location['lat'] as double?;
         final lng = location['lng'] as double?;
-        final speed = location['speed'] as double?;
+        // final speed = location['speed'] as double?;
         if (lat != null && lng != null) {
           final marker = Marker(
             markerId: MarkerId(userId),
@@ -245,6 +245,7 @@ class GMapController extends GetxController {
                 // deleteItem();
                 modelNum = feedbackController.text.toString();
                 Get.to( () => GMapScreen());
+
               }
               feedbackController.clear(); // Clear the text field
             },
