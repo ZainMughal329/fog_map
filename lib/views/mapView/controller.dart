@@ -76,11 +76,12 @@ class MapController extends GetxController {
       data.forEach((userId, location) {
         final lat = location['lat'] as double?;
         final lng = location['lng'] as double?;
+        final speed = location['speed'] as double?;
         if (lat != null && lng != null) {
           final marker = Marker(
             markerId: MarkerId(userId),
             position: LatLng(lat, lng),
-            infoWindow: InfoWindow(title: userId),
+            infoWindow: InfoWindow(title: speed!.toStringAsFixed(2).toString()),
           );
           markerList.add(marker);
         }
