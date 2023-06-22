@@ -12,3 +12,23 @@ Google Maps Integration: The app displays markers on a Google Map, representing 
 Location Sharing: Users can share their location, which is stored on Firebase, allowing others to see their current position.
 Speed Tracking: The app provides information on the speed of each person traveling in a vehicle.
 Distance Calculation: The app calculates the distance between the user and other vehicles on the map.
+
+
+## Installation
+
+Clone the repository: git clone https://github.com/your-username/your-repository.git
+Navigate to the project directory: cd your-repository
+Ensure Flutter is installed by running: flutter doctor
+Run the application: flutter run
+Note: You may need to set up Firebase configuration in the project for location storage.
+
+## Usage
+
+Launch the application on your device or emulator.
+Sign up or log in using your credentials.
+Select your vehicle type.
+Explore the app's features, such as sharing your location, viewing markers on the map, and tracking speed and distance.
+
+## Contact
+
+For any inquiries or support, please email firstairproject@gmail.com.
