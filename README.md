@@ -1,1 +1,2 @@
 # fog_map
+new
