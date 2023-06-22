@@ -56,9 +56,13 @@ class DistanceScreen extends StatelessWidget {
                     var speed = childNodeValue['speed'];
                     String id = childNodeValue['uid'].toString();
                     String modelNo = childNodeValue['model'].toString();
+                    print('lat is : ' + lat.toString());
+                    print('long is : ' + long.toString());
                     print("childnodevalue"+childNodeValue.toString());
                     print("childnodes"+childNodes.toString());
-                    String distance = controller.calDistance(lat,long).toString();
+                    double distance = controller.calDistance(lat,long);
+
+                    print('distance is : ' + distance.toString());
 
                     // Build your UI using the child node values
                      if(id==SessionController().userId.toString()){
@@ -67,7 +71,7 @@ class DistanceScreen extends StatelessWidget {
                        return Padding(
                          padding: const EdgeInsets.all(10.0),
                          child: ListTile(
-                           title: Text("Vechile No : "+modelNo),
+                           title: Text("Vehicle No : "+modelNo),
                            subtitle: Text("Speed = "+speed.toStringAsFixed(3).toString()+" m/s" ),
                            trailing: Text(distance.toString()),
                          ),
