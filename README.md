@@ -16,7 +16,7 @@ Distance Calculation: The app calculates the distance between the user and other
 
 ## Installation
 
-Clone the repository: git clone https://github.com/your-username/your-repository.git
+Clone the repository: git clone https://github.com/your-username/your-repository.git](https://github.com/ZainMughal329/fog_map
 Navigate to the project directory: cd your-repository
 Ensure Flutter is installed by running: flutter doctor
 Run the application: flutter run
