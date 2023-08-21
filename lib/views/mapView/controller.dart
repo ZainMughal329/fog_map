@@ -133,7 +133,7 @@ class GMapController extends GetxController {
         final lat = location['lat'] as double?;
         final lng = location['lng'] as double?;
 
-        final speed = location['speed'] as double?;
+        final speed = location['speed'];
         if (lat != null && lng != null) {
           final marker = Marker(
             markerId: MarkerId(userId),
