@@ -66,7 +66,23 @@ class DistanceScreen extends StatelessWidget {
 
                     // Build your UI using the child node values
                      if(id==SessionController().userId.toString()){
-                      return Container();
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding:  EdgeInsets.only(top: 200),
+                              child: SizedBox(height: 10,),
+                            ),
+                            Text("No Vechile Under 1 KM",
+                            style: Theme.of(context).textTheme.headlineMedium,
+                            ),
+                            SizedBox(height: 50,),
+                            CircularProgressIndicator(),
+
+                          ],
+                        ),
+                      );
                     }else{
                        return Padding(
                          padding: const EdgeInsets.all(10.0),
@@ -85,7 +101,9 @@ class DistanceScreen extends StatelessWidget {
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
-              return CircularProgressIndicator();
+              return Center(child: Container(
+                child: Text("No Vechiles under 1 KM"),
+              ));
             }
           }
         )

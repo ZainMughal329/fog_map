@@ -2,43 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:fog_map/reuseable/round_button.dart';
 import 'package:fog_map/sigin/index.dart';
 import 'package:fog_map/welcom_screens/controller.dart';
+import 'package:fog_map/welcom_screens/screen1/view.dart';
+import 'package:fog_map/welcom_screens/screen2/view.dart';
+import 'package:fog_map/welcom_screens/screen3/view.dart';
 import 'package:get/get.dart';
 
 class WelcomePage extends StatelessWidget {
   WelcomePage({Key? key}) : super(key: key);
 
   List<Widget> pages = [
-    Scaffold(
-      backgroundColor: Colors.teal,
-      body: Center(
-        child: Text("Page1 s"),
-      ),
-    ),
-    Scaffold(
-      backgroundColor: Colors.grey,
-      body: Center(
-        child: Text("Page 2 s"),
-      ),
-    ),
-    Scaffold(
-      backgroundColor: Colors.blue,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Page 3 s"),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: RoundButton(
-                  title: "Go to SignUp Page",
-                  onPress: () {
-                    Get.offAll(() => SignInPage());
-                  }),
-            )
-          ],
-        ),
-      ),
-    ),
+    ScreenOne(),
+    // Scaffold(
+    //   backgroundColor: Colors.grey,
+    //   body: Center(
+    //     child: Text("Page 2 s"),
+    //   ),
+    // ),
+    ScreenTwo(),
+    ScreenThree(),
+    // Scaffold(
+    //   backgroundColor: Colors.blue,
+    //   body: Center(
+    //     child: Column(
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: [
+    //         Text("Page 3 s"),
+    //         Padding(
+    //           padding: const EdgeInsets.all(20),
+    //           child: RoundButton(
+    //               title: "Go to SignUp Page",
+    //               onPress: () {
+    //                 Get.offAll(() => SignInPage());
+    //               }),
+    //         )
+    //       ],
+    //     ),
+    //   ),
+    // ),
   ];
 
   final controller = Get.put<WelcomeController>(WelcomeController());
@@ -84,6 +84,7 @@ class WelcomePage extends StatelessWidget {
                     })
                   ],
                 ),
+                SizedBox(height: 30,)
               ],
             ),
           ),
@@ -108,11 +109,11 @@ class CircleIndicator extends StatelessWidget {
           duration: Duration(milliseconds: 300),
           margin: EdgeInsets.symmetric(horizontal: 8),
           width: index == activeIndex ? 20 : 8,
-          height: index == activeIndex ? 15 : 8,
+          height: index == activeIndex ? 10 : 8,
           decoration: BoxDecoration(
             // shape: BoxShape.circle,
             borderRadius: BorderRadius.circular(5),
-            color: index == activeIndex ? Colors.black : Colors.white,
+            color: index == activeIndex ? Colors.black : Colors.grey,
           ),
         );
       }),

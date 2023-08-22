@@ -135,7 +135,7 @@ class HomeScreen extends StatelessWidget {
         padding: EdgeInsets.all(10.w),
         margin: EdgeInsets.only(bottom: 15.h),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.blueGrey.shade400,
           borderRadius: const BorderRadius.all(
             Radius.circular(5),
           ),
@@ -176,20 +176,25 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blueGrey.shade200,
       appBar: AppBar(
         title: Text('Home Page'),
         centerTitle: true,
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Colors.blueGrey.shade700,
       ),
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 50.h, horizontal: 0.w),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildSelectVehicle('Car', 'assets/images/car', context),
+                SizedBox(height: 30.h,),
                 _buildSelectVehicle('Bus', 'assets/images/bus', context),
+                SizedBox(height: 30.h,),
                 _buildSelectVehicle('Bike', 'assets/images/bycicle', context),
+                SizedBox(height: 30.h,),
                 _buildSelectVehicle('Nothing', 'assets/images/walk', context),
                 // _buildSelectVehicle('Car', 'assets/images/car'),
               ],
