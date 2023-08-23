@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fog_map/sigin/sign_up_view.dart';
+// import 'package:fog_map/sigin/sign_up_view.dart';
 import 'package:get/get.dart';
 
 import '../reuseable/input_feild.dart';
@@ -122,24 +123,24 @@ class SignInPage extends GetView<SignInController> {
                 _buildAppBar(),
                 _buildLogo(),
                 _buildForm(),
-                InkWell(
-                  onTap: () {
-                    // Get.toNamed(AppRoutes.Forgot_Password);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.only(right: 20.w),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Forgot Password?',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(decoration: TextDecoration.underline),
-                      ),
-                    ),
-                  ),
-                ),
+                // InkWell(
+                //   onTap: () {
+                //     // Get.toNamed(AppRoutes.Forgot_Password);
+                //   },
+                //   child: Container(
+                //     padding: EdgeInsets.only(right: 20.w),
+                //     child: Align(
+                //       alignment: Alignment.centerRight,
+                //       child: Text(
+                //         'Forgot Password?',
+                //         style: Theme.of(context)
+                //             .textTheme
+                //             .bodyMedium!
+                //             .copyWith(decoration: TextDecoration.underline),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 Obx((){
                   return Padding(
                     padding: EdgeInsets.symmetric(vertical: 20.h),

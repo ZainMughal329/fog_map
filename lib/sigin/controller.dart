@@ -21,10 +21,16 @@ class SignInController extends GetxController {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  final userEmailController = TextEditingController();
+  final userPasswordController = TextEditingController();
   final userController = TextEditingController();
   final emailFocus = FocusNode();
   final userFocus = FocusNode();
   final passwordFocus = FocusNode();
+  final userEmailFocus = FocusNode();
+  // final userFocus = FocusNode();
+  final userPasswordFocus = FocusNode();
 
   void dispose() {
     super.dispose();
@@ -33,6 +39,9 @@ class SignInController extends GetxController {
     passwordController.dispose();
     emailFocus.dispose();
     userFocus.dispose();
+    userEmailController.dispose();
+    userPasswordController.dispose();
+
     userController.dispose();
     passwordFocus.dispose();
   }
@@ -63,8 +72,8 @@ class SignInController extends GetxController {
         state.loading.value = false;
         Get.snackbar('Success', 'Congrats your account has been created');
         userController.clear();
-        emailController.clear();
-        passwordController.clear();
+        userEmailController.clear();
+        userPasswordController.clear();
         Get.off(() => HomeScreen());
       }).onError((error, stackTrace) {
         state.loading.value = false;

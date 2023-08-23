@@ -9,6 +9,7 @@ class InputTextField extends StatelessWidget {
   FocusNode focNode;
   String labelText;
   String descrip;
+  // Icon suffixicon;
 
   InputTextField({
     super.key,
@@ -19,6 +20,7 @@ class InputTextField extends StatelessWidget {
     required this.keyboardType,
     required this.obsecure,
     required this.icon,
+    // this.suffixicon = Icons.,
   });
 
   @override
@@ -34,6 +36,7 @@ class InputTextField extends StatelessWidget {
         onFieldSubmitted: (value) {},
         decoration: InputDecoration(
           prefixIcon: Icon(icon),
+
           hintText: descrip,
           labelText: labelText,
           border: OutlineInputBorder(

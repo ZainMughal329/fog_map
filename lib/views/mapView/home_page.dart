@@ -178,7 +178,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.blueGrey.shade200,
       appBar: AppBar(
-        title: Text('Home Page'),
+        title: Text('Select Vehicle'),
         centerTitle: true,
         backgroundColor: Colors.blueGrey.shade700,
       ),

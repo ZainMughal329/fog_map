@@ -38,17 +38,18 @@ class SignUpView extends GetView<SignInController> {
                 obsecure: false,
                 keyboardType: TextInputType.emailAddress,
                 icon: Icons.email_outlined,
-                contr: controller.emailController,
+                contr: controller.userEmailController,
                 descrip: 'Enter your email',
-                focNode: controller.emailFocus,
+                focNode: controller.userEmailFocus,
                 labelText: 'Email'),
             InputTextField(
-                obsecure: true,
+
+                obsecure: false,
                 keyboardType: TextInputType.visiblePassword,
                 icon: Icons.lock_open,
-                contr: controller.passwordController,
+                contr: controller.userPasswordController,
                 descrip: 'Enter your password',
-                focNode: controller.passwordFocus,
+                focNode: controller.userPasswordFocus,
                 labelText: 'Password'),
           ],
         ));
@@ -82,8 +83,8 @@ class SignUpView extends GetView<SignInController> {
                       loading: controller.state.loading.value,
                       onPress: () {
                         controller.registerUser(
-                          controller.emailController.text.toString(),
-                          controller.passwordController.text.toString(),
+                          controller.userEmailController.text.trim().toString(),
+                          controller.userPasswordController.text..trim().toString(),
                         );
                         // Get.to(() => HomeScreen());
                       },
